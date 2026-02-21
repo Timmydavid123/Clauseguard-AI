@@ -1,0 +1,104 @@
+{% extends "analyzer/base.html" %}
+{% load static %}
+
+{% block title %}ClauseGuard — Know What You're Signing{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-eyebrow">Powered by Advanced AI</div>
+  <h1>Know What You're<br><em>Signing.</em></h1>
+  <p>Upload any contract and get an instant AI-powered risk analysis — plain English, no legal jargon.</p>
+</section>
+
+<div class="upload-container">
+
+  {% if error %}
+  <div class="alert alert-error">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <!-- PDF Upload Zone -->
+  <div class="upload-zone" id="drop-zone">
+    <div class="upload-zone-inner">
+      <span class="upload-icon">📄</span>
+      <div class="upload-title">Drop your contract here</div>
+      <div class="upload-sub">PDF files up to 10MB</div>
+      <form method="post" enctype="multipart/form-data" id="pdf-form" action="{% url 'analyze_pdf' %}">
+        {% csrf_token %}
+        <input type="file" name="contract_pdf" id="file-input" accept=".pdf" hidden/>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+          📁 Browse PDF
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="divider"><span>or paste contract text</span></div>
+
+  <!-- Text Input -->
+  <div class="text-panel">
+    <textarea
+      id="contract-text"
+      placeholder="Paste the full contract text here...&#10;&#10;e.g. THIS AGREEMENT is entered into as of the date last signed below between..."
+      rows="8"
+    ></textarea>
+    <div class="text-panel-footer">
+      <span class="char-count" id="char-count">0 characters</span>
+      <button class="btn btn-accent" id="analyze-text-btn" onclick="submitText()">
+        ⚡ Analyze Contract
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Box -->
+  <div class="alert alert-error" id="error-box" style="display:none"></div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading-overlay" style="display:none">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-title">Analyzing your contract...</div>
+      <div class="loading-sub">Our AI engine is reviewing every clause</div>
+      <ul class="loading-steps" id="loading-steps">
+        <li data-delay="0">Extracting contract text...</li>
+        <li data-delay="600">Identifying parties and clauses...</li>
+        <li data-delay="1200">Scanning for risk patterns...</li>
+        <li data-delay="1900">Evaluating liability exposure...</li>
+        <li data-delay="2600">Checking for missing protections...</li>
+        <li data-delay="3300">Generating risk report...</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- How it works -->
+<section class="how-it-works">
+  <div class="hiw-eyebrow">How it works</div>
+  <div class="hiw-grid">
+    <div class="hiw-step">
+      <div class="hiw-num">01</div>
+      <div class="hiw-title">Upload</div>
+      <div class="hiw-desc">Drop a PDF or paste your contract text directly.</div>
+    </div>
+    <div class="hiw-step">
+      <div class="hiw-num">02</div>
+      <div class="hiw-title">Analyze</div>
+      <div class="hiw-desc">Our AI engine reads every clause and identifies risks.</div>
+    </div>
+    <div class="hiw-step">
+      <div class="hiw-num">03</div>
+      <div class="hiw-title">Review</div>
+      <div class="hiw-desc">Get a structured report with scores and recommendations.</div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ANALYZE_PDF_URL = "{% url 'analyze_pdf' %}";
+const ANALYZE_TEXT_URL = "{% url 'analyze_text' %}";
+const RESULTS_URL = "{% url 'results' %}";
+const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "analyzer/base.html" %}
+{% load static %}
+
+{% block title %}Risk Report — {{ filename }} | ClauseGuard{% endblock %}
+
+{% block content %}
+<div class="results-wrapper">
+
+  <!-- Results Header -->
+  <div class="results-header">
+    <div class="results-meta">📄 {{ filename }} &nbsp;•&nbsp; Analysis Complete</div>
+    <h1 class="results-title">Contract Risk Report</h1>
+    <p class="results-summary">{{ summary }}</p>
+    {% if party_info %}
+    <div class="party-tags">
+      {% if party_info.document_type %}
+      <span class="tag">📋 {{ party_info.document_type }}</span>
+      {% endif %}
+      {% if party_info.key_parties %}
+      <span class="tag">👥 {{ party_info.key_parties }}</span>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <a href="/" class="btn btn-ghost">← New Analysis</a>
+
+  <!-- Score + Stats -->
+  <div class="score-grid">
+
+    <div class="score-card score-card--main">
+      <div class="score-ring score-ring--{{ risk_level_class }}">
+        <div class="score-number score-{{ risk_level_class }}">{{ score }}</div>
+        <div class="score-label">/ 100</div>
+      </div>
+      <div class="score-sublabel">Risk Score</div>
+      <span class="severity-badge sev-{{ risk_level_class }}">{{ level }} Risk</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ quick_stats.total_risks|default:0 }}</div>
+        <div class="stat-label">Total Risks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number text-critical">{{ quick_stats.critical_risks|default:0 }}</div>
+        <div class="stat-label">Critical</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number text-high">{{ quick_stats.high_risks|default:0 }}</div>
+        <div class="stat-label">High</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number text-medium">{{ missing_protections|length }}</div>
+        <div class="stat-label">Missing Protections</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Identified Risks -->
+  <section class="results-section">
+    <div class="section-header">
+      <h2 class="section-title">⚠️ Identified Risks</h2>
+      <span class="section-count">{{ risks|length }} found</span>
+    </div>
+
+    {% if risks %}
+      {% for risk in risks %}
+      <div class="risk-card" id="risk-{{ forloop.counter }}">
+        <div class="risk-card-header" onclick="toggleRisk(this)">
+          <span class="severity-badge sev-{{ risk.severity|lower }}">{{ risk.severity }}</span>
+          <div class="risk-card-info">
+            <div class="risk-card-title">{{ risk.title }}</div>
+            <div class="risk-card-category">{{ risk.category }}</div>
+          </div>
+          <span class="risk-toggle" aria-hidden="true">▾</span>
+        </div>
+        <div class="risk-card-body">
+          {% if risk.clause %}
+          <blockquote class="risk-clause">"{{ risk.clause }}"</blockquote>
+          {% endif %}
+          <p class="risk-explanation">{{ risk.explanation }}</p>
+          <div class="risk-rec">
+            <strong>Recommendation</strong>
+            {{ risk.recommendation }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">✅ No major risks identified in this contract.</div>
+    {% endif %}
+  </section>
+
+  <!-- Missing Protections -->
+  <section class="results-section">
+    <div class="section-header">
+      <h2 class="section-title">🔒 Missing Protections</h2>
+      <span class="section-count">{{ missing_protections|length }} found</span>
+    </div>
+
+    {% if missing_protections %}
+      {% for item in missing_protections %}
+      <div class="simple-card">
+        <span class="simple-card-icon">🔸</span>
+        <div class="simple-card-body">
+          <div class="simple-card-title">
+            {{ item.title }}
+            <span class="severity-badge sev-{{ item.importance|lower }} badge--sm">{{ item.importance }}</span>
+          </div>
+          <p class="simple-card-desc">{{ item.explanation }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">✅ No missing protections identified.</div>
+    {% endif %}
+  </section>
+
+  <!-- Positive Clauses -->
+  <section class="results-section">
+    <div class="section-header">
+      <h2 class="section-title">✅ Favorable Clauses</h2>
+      <span class="section-count">{{ positive_clauses|length }} found</span>
+    </div>
+
+    {% if positive_clauses %}
+      {% for item in positive_clauses %}
+      <div class="simple-card">
+        <span class="simple-card-icon">✅</span>
+        <div class="simple-card-body">
+          <div class="simple-card-title">{{ item.title }}</div>
+          <p class="simple-card-desc">{{ item.explanation }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">No specifically favorable clauses identified.</div>
+    {% endif %}
+  </section>
+
+  <div class="disclaimer">
+    ⚠️ ClauseGuard is an AI tool and does not constitute legal advice. Always consult a qualified lawyer before signing any contract.
+  </div>
+
+</div>
+{% endblock %}
