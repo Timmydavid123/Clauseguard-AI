@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  ollama:
+    build:
+      context: .
+      dockerfile: ollama-service/Dockerfile.ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_MODEL=qwen2.5:3b-instruct
+    networks:
+      - clauseguard-network
+
+  django:
+    build:
+      context: .
+      dockerfile: django-app/Dockerfile.django
+    ports:
+      - "8000:10000"
+    environment:
+      - OLLAMA_URL=http://ollama:11434/api/chat
+      - OLLAMA_MODEL=qwen2.5:3b-instruct
+      - DJANGO_SECRET_KEY=dev-secret-key-change-in-production
+      - DEBUG=True
+    depends_on:
+      - ollama
+    volumes:
+      - ./django-app:/app
+    networks:
+      - clauseguard-network
+
+volumes:
+  ollama_data:
+
+networks:
+  clauseguard-network:
+    driver: bridge

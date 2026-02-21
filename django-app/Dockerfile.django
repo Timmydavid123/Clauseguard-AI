@@ -5,7 +5,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    zstd \
     gcc \
     libmagic1 \
     libglib2.0-0 \
@@ -15,18 +14,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt .
+# Copy requirements and install dependencies
+COPY django-app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy the Django application
+COPY django-app/ .
 
-RUN curl -fsSL https://ollama.com/install.sh | sh
-
-
+# Environment variables
 ENV OLLAMA_MODEL=qwen2.5:3b-instruct
-ENV OLLAMA_URL=http://127.0.0.1:11434/api/chat
+ENV OLLAMA_URL=${OLLAMA_URL:-http://ollama-service:11434/api/chat}
 
-COPY start.sh /start.sh
+COPY django-app/start.django.sh /start.sh
 RUN chmod +x /start.sh
 
 CMD ["/start.sh"]

@@ -1,0 +1,13 @@
+FROM ollama/ollama:latest
+
+EXPOSE 11434
+
+COPY ollama-service/start.ollama.sh /start.sh
+COPY ollama-service/pull-model.sh /pull-model.sh
+
+RUN chmod +x /start.sh /pull-model.sh
+
+ENV OLLAMA_HOST=0.0.0.0:11434
+ENV OLLAMA_MODEL=qwen2.5:3b-instruct
+
+CMD ["/start.sh"]
