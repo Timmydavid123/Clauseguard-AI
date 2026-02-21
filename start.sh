@@ -1,38 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "start.sh running as: $(whoami), pwd: $(pwd)"
-ls -la /start.sh || true
-which ollama || true
-ollama --version || true
+# send ALL script logs to Render stdout
+exec 1> >(tee -a /proc/1/fd/1) 2> >(tee -a /proc/1/fd/2 >&2)
 
 echo "Starting Ollama..."
+export OLLAMA_HOST="0.0.0.0:11434"   # <--- important
+
+# stream ollama logs to stdout (instead of hiding in /tmp)
 ollama serve 2>&1 | sed -u 's/^/[ollama] /' &
 OLLAMA_PID=$!
 
 echo "Waiting for Ollama to be ready..."
-for i in {1..60}; do
+for i in {1..90}; do
   if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
     echo "Ollama is up."
     break
   fi
 
-  # If ollama crashed, show logs and exit
   if ! kill -0 "$OLLAMA_PID" >/dev/null 2>&1; then
-    echo "Ollama exited early. Last 200 lines of /tmp/ollama.log:"
-    tail -n 200 /tmp/ollama.log || true
+    echo "Ollama exited early."
     exit 1
   fi
-
   sleep 1
 done
 
-# Final check
-if ! curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
-  echo "Ollama did not become ready in time. Last 200 lines of /tmp/ollama.log:"
-  tail -n 200 /tmp/ollama.log || true
-  exit 1
-fi
+curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
 
 echo "Pulling model: ${OLLAMA_MODEL:-qwen2.5:3b-instruct}"
 ollama pull "${OLLAMA_MODEL:-qwen2.5:3b-instruct}"
