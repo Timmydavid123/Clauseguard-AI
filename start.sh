@@ -9,7 +9,7 @@ echo "Pulling model: ${OLLAMA_MODEL}"
 ollama pull "${OLLAMA_MODEL}"
 
 echo "Running migrations & collectstatic..."
-python manage.py migrate --noinput || true
+# python manage.py migrate --noinput || true
 python manage.py collectstatic --noinput || true
 
 echo "Starting Gunicorn on port ${PORT:-10000}..."
