@@ -58,7 +58,7 @@ def results(request):
 
 def check_ollama_health():
     """Check if Ollama service is reachable"""
-    ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+    ollama_url = os.getenv("OLLAMA_URL", "https://clauseguard-ai-2.onrender.com/api/chat")
     
     # Extract base URL for health check
     base_url = ollama_url.replace("/api/chat", "/api/tags")
@@ -210,7 +210,7 @@ def analyze_text(request):
 @require_http_methods(["GET"])
 def service_status(request):
     """Check if Ollama service is reachable (for debugging)"""
-    ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+    ollama_url = os.getenv("OLLAMA_URL", "https://clauseguard-ai-2.onrender.com/api/chat")
     ollama_available = check_ollama_health()
     
     return JsonResponse({

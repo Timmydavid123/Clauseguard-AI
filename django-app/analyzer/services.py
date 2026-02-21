@@ -75,13 +75,13 @@ def analyze_contract(contract_text: str, model: str = None) -> Dict[str, Any]:
     user_prompt = ANALYSIS_PROMPT + trimmed_text
 
     # Get configuration from environment
-    ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+    ollama_url = os.getenv("OLLAMA_URL", "https://clauseguard-ai-2.onrender.com/api/chat")
     model = model or os.getenv("OLLAMA_MODEL", "qwen2.5:3b-instruct")
     
     # For Render deployment, ensure URL uses internal service name
     if os.getenv("RENDER") and "ollama" not in ollama_url:
         # Auto-correct to use internal service name if on Render
-        ollama_url = "http://ollama-service:11434/api/chat"
+        ollama_url = "https://clauseguard-ai-2.onrender.com/api/chat"
 
     payload = {
         "model": model,

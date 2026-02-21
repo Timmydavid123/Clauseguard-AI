@@ -23,7 +23,7 @@ COPY django-app/ .
 
 # Environment variables
 ENV OLLAMA_MODEL=qwen2.5:3b-instruct
-ENV OLLAMA_URL=${OLLAMA_URL:-http://ollama-service:11434/api/chat}
+ENV OLLAMA_URL=${OLLAMA_URL:-https://clauseguard-ai-2.onrender.com/api/chat}
 
 COPY django-app/start.django.sh /start.sh
 RUN chmod +x /start.sh
