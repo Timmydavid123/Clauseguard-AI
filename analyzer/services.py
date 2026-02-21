@@ -126,7 +126,7 @@ def analyze_contract(contract_text: str, model: str = None) -> dict:
     model = model or os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
 
     payload = {
-        "model": model,
+        "model": model, 
         "stream": False,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},

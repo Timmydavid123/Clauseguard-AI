@@ -22,6 +22,7 @@ COPY . .
 
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
+
 ENV OLLAMA_MODEL=qwen2.5:3b-instruct
 ENV OLLAMA_URL=http://127.0.0.1:11434/api/chat
 
