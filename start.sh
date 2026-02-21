@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "start.sh running as: $(whoami), pwd: $(pwd)"
+ls -la /start.sh || true
+which ollama || true
+ollama --version || true
+
 echo "Starting Ollama..."
-ollama serve > /tmp/ollama.log 2>&1 &
+ollama serve 2>&1 | sed -u 's/^/[ollama] /' &
 OLLAMA_PID=$!
 
 echo "Waiting for Ollama to be ready..."
