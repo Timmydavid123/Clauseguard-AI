@@ -1,3 +1,4 @@
+import os
 import pdfplumber
 import json
 import re
@@ -112,15 +113,18 @@ def _extract_first_json_object(text: str):
     return None
 
 
-def analyze_contract(contract_text: str, model: str = "qwen2.5:7b-instruct") -> dict:
+def analyze_contract(contract_text: str, model: str = None) -> dict:
     """
     Send contract text to Ollama and return structured analysis JSON.
-    Requires Ollama running locally: http://127.0.0.1:11434
+    Works locally by default, and can be configured in production.
     """
     trimmed_text = contract_text[:8000]
     user_prompt = ANALYSIS_PROMPT + trimmed_text
 
-    url = "http://127.0.0.1:11434/api/chat"
+    # Defaults for local dev:
+    ollama_url = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434/api/chat")
+    model = model or os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
+
     payload = {
         "model": model,
         "stream": False,
@@ -131,18 +135,20 @@ def analyze_contract(contract_text: str, model: str = "qwen2.5:7b-instruct") -> 
         "options": {"temperature": 0.2},
     }
 
-    r = requests.post(url, json=payload, timeout=300)
-    r.raise_for_status()
-    data = r.json()
+    try:
+        r = requests.post(ollama_url, json=payload, timeout=300)
+        r.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        # This is what happens on Render (no Ollama running)
+        raise RuntimeError(f"Ollama is unreachable at {ollama_url}. Is it running?") from e
 
+    data = r.json()
     response_text = data.get("message", {}).get("content", "") or ""
     response_text = _strip_code_fences(response_text)
 
-    # First attempt: parse as pure JSON
     try:
         return json.loads(response_text)
     except json.JSONDecodeError:
-        # Fallback: extract first JSON object from mixed output
         extracted = _extract_first_json_object(response_text)
         if extracted is None:
             raise ValueError("Ollama response was not valid JSON. Try a different model.")
