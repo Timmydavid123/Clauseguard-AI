@@ -28,4 +28,4 @@ ENV OLLAMA_URL=${OLLAMA_URL:-https://clauseguard-ai-2.onrender.com/api/chat}
 COPY django-app/start.django.sh /start.sh
 RUN chmod +x /start.sh
 
-CMD ["/start.sh"]
+CMD ["/start.django.sh"]
