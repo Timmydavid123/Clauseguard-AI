@@ -3,7 +3,7 @@ services:
   - type: web
     name: clauseguard-ollama
     runtime: docker
-    repo: https://github.com/yourusername/clauseguard-ai
+    repo: https://github.com/Timmydavid123/Clauseguard-AI
     dockerfilePath: ./ollama-service/Dockerfile.ollama
     dockerContext: ./
     envVars:
@@ -15,18 +15,21 @@ services:
       sizeGB: 10
 
   # Django Web Service
+  services:
   - type: web
     name: clauseguard-ai
     runtime: docker
-    repo: https://github.com/yourusername/clauseguard-ai
-    dockerfilePath: ./django-app/Dockerfile.django
+    repo: https://github.com/Timmydavid123/Clauseguard-AI
+    dockerfilePath: ./Dockerfile.django
     dockerContext: ./
     envVars:
       - key: OLLAMA_URL
-        value: http://clauseguard-ollama:11434/api/chat
+        value: https://clauseguard-ai-2.onrender.com/api/chat
       - key: OLLAMA_MODEL
         value: qwen2.5:3b-instruct
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DEBUG
         value: false
+      - key: PORT
+        value: 10000
